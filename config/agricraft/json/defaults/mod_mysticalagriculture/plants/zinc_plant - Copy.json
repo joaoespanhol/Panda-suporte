@@ -1,0 +1,62 @@
+{
+  "grass_drop_chance": 0,
+  "seed_drop_chance": 1,
+  "seed_name": "Silicon Seeds",
+  "texture": {
+    "plant_textures": [
+      "mysticalagriculture:blocks/crop0",
+      "mysticalagriculture:blocks/crop1",
+      "mysticalagriculture:blocks/crop2",
+      "mysticalagriculture:blocks/crop2",
+      "mysticalagriculture:blocks/crop3",
+      "mysticalagriculture:blocks/crop4",
+      "mysticalagriculture:blocks/crop4",
+      "mysticalagriculture:blocks/silicon_crop"
+    ],
+    "seed_texture": "mysticalagriculture:items/silicon_seeds",
+    "render_type": "cross"
+  },
+  "description": {
+    "default": "Silicon Seeds.",
+    "translations": {}
+  },
+  "requirement": {
+    "min_light": 10,
+    "max_light": 16,
+    "soils": ["farmland_soil"],
+    "conditions": []
+  },
+  "enabled": true,
+  "weedable": false,
+  "seed_items": [{
+    "item": "mysticalagriculture:silicon_seeds",
+    "meta": 0,
+    "ignoreTags": ["*"],
+    "useOreDict": false,
+    "ignoreMeta": false,
+    "tags": ""
+  }],
+  "growth_chance": 0.9,
+  "products": {"products": [{
+    "item": "mysticalagriculture:silicon_essence",
+    "min": 1,
+    "chance": 0.9,
+    "max": 5,
+    "meta": 0,
+    "ignoreTags": [],
+    "useOreDict": false,
+    "required": true,
+    "ignoreMeta": false,
+    "tags": ""
+  }]},
+  "spread_chance": "0.0",
+  "path": "mod_mysticalagriculture/plants/silicon_plant.json",
+  "tier": 1,
+  "growth_bonus": 0.025,
+  "bonemeal": false,
+  "id": "mysticalagriculture:silicon_plant",
+  "aggressive": false,
+  "seed_drop_bonus": 0,
+  "plant_name": "Silicon Crop",
+  "spawn_chance": 0
+}

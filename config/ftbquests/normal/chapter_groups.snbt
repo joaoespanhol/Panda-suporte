@@ -1,0 +1,10 @@
+{
+	chapter_groups: [
+		{ id: "3AE788AF09CDD2FE", title: "Manual do Mundo" }
+		{ id: "6AC9F0C47CF0D31C", title: "Obtendo Recursos" }
+		{ id: "471A9C4D061278E9", title: "Era das automações" }
+		{ id: "5A8F39FED6A7404F", title: "Magia" }
+		{ id: "098C0ECFED71C5AF", title: "Coleções" }
+		{ id: "4A036B43DF54E29B", title: "End game" }
+	]
+}

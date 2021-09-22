@@ -1,0 +1,166 @@
+{
+    "images":
+    {
+		"black":
+        {
+            "image" : "custommainmenu:bg5.png",
+            "posX" : 10,
+            "posY" : 0,
+            "width" : 200,
+            "height" : 800,
+            "alignment" : "top_left"
+        },
+        "title":
+        {
+            "image" : "custommainmenu:Stonks.F1oto.png",
+            "posX" : 45,
+            "posY" : -230,
+            "width" : 130,
+            "height" : 90,
+            "alignment" : "bottom_left"
+        }
+    },
+
+    "buttons":
+    {
+        "singleplayer":
+        {
+            "text" : "menu.singleplayer",
+            "texture" : "custommainmenu:btn.png",
+            "posX" : 50,
+            "posY" : -145,
+            "width" : 120,
+            "height" : 20,
+            "alignment" : "bottom_left",
+            "action" : 
+            {
+                "type" : "openGui",
+                "gui" : "singleplayer"
+            }
+        },
+        
+        "multiplayer":
+        {
+            "text" : "menu.multiplayer",
+            "texture" : "custommainmenu:btn.png",
+            "posX" : 50,
+            "posY" : -123,
+            "width" : 120,
+            "height" : 20,
+            "alignment" : "bottom_left",
+            "action" : 
+            {
+                "type" : "openGui",
+                "gui" : "multiplayer"
+            }
+        },
+        
+            
+        "options":
+        {
+            "text" : "menu.options",
+            "texture" : "custommainmenu:btn.png",
+            "posX" : 50,
+            "posY" : -101,
+            "width" : 120,
+            "height" : 20,
+            "alignment" : "bottom_left",
+            "action" : 
+            {
+                "type" : "openGui",
+                "gui" : "options"
+            }
+        },
+        
+        "quit":
+        {
+            "text" : "menu.quit",
+            "texture" : "custommainmenu:btn.png",
+            "posX" : 50,
+            "posY" : -35,
+            "width" : 120,
+            "height" : 20,
+            "alignment" : "bottom_left",
+            "action" : 
+            {
+                "type" : "quit"
+            }
+        },
+        
+        "site":
+        {
+            "text" : "Site",
+            "texture" : "custommainmenu:btn.png",
+            "posX" : 100,
+            "posY" : -57,
+            "width" : 20,
+            "height" : 20,
+            "alignment" : "bottom_left",
+            "action" : 
+            {
+                "type" : "openLink",
+				"link" : "https://discord.gg/P9rtUSXGpZ"
+            }
+        },
+        
+        "refresh":
+        {
+            "text" : "",
+            "texture" : "custommainmenu:btn.png",
+            "posX" : 3000,
+            "posY" : -30,
+            "width" : 20,
+            "height" : 20,
+            "alignment" : "bottom_left",
+            "texture" : "custommainmenu:textures/gui/buttons.png",
+            "action" : 
+            {
+                "type" : "refresh"
+            }
+        },
+
+        "discord":
+        {
+            "text" : "Discord",
+            "texture" : "custommainmenu:btn.png",
+            "hoverText" : "Discord",
+            "posX" : 50,
+            "posY" : -79,
+            "width" : 120,
+            "height" : 20,
+            "alignment" : "bottom_left",
+            "action" : 
+            {
+                "type" : "openLink",
+				"link" : "https://discord.gg/P9rtUSXGpZ"
+            }
+		}
+    },
+    
+    "labels":
+    {
+        "mojang":
+        {
+            "text" : "Server NexusNetwork",
+            "hoverText" : "by yLuciano18",
+            "posX" : -142,
+            "posY" : -13,
+            "color" : -1,
+            "alignment" : "bottom_right",
+            "action" : 
+            {
+                "type" : "openGui",
+                "gui" : "credits"
+            }
+        }       
+    },
+    
+    "other":
+    {
+        "background":
+        {
+			"image" : "custommainmenu:stock-marke.png",
+			"mode" : "stretch"
+        }
+    }
+}

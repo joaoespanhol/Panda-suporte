@@ -1,0 +1,14 @@
+{
+  "tconstruct:stone_torch": 1,
+  "integrateddynamics:menril_torch": 1,
+  "integrateddynamics:menril_torch_stone": 1,
+  "minecraft:torch": 1,
+  "minecraft:lava": 3,
+  "minecraft:fire": 5,
+  "torchmaster:mega_torch": 10,
+  "immersiveengineering:storage:5": 20,
+  "bigreactors:blockmetals:3": 30,
+  "mekanism:basicblock2:5": 60,
+  "thermalfoundation:fluid_pyrotheum":90,
+  "draconicevolution:draconic_block": 120
+}

@@ -1,0 +1,47 @@
+[
+  {
+    "baseRegistryName": "exnihilocreatio:block_dust",
+    "compressedPathRegistryName": "compressed_dust",
+    "meta": 0,
+    "texturePath": "exnihilocreatio:textures/blocks/blockdust.png",
+    "depth": 8,
+    "hardnessMultiplier": 1.0,
+    "recipeEnabled": true
+  },
+  {
+    "baseRegistryName": "minecraft:end_stone",
+    "compressedPathRegistryName": "compressed_end_stone",
+    "meta": 0,
+    "texturePath": "minecraft:textures/blocks/end_stone.png",
+    "depth": 8,
+    "hardnessMultiplier": 9.0,
+    "recipeEnabled": true
+  },
+  {
+    "baseRegistryName": "minecraft:stone",
+    "compressedPathRegistryName": "compressed_stone",
+    "meta": 0,
+    "texturePath": "minecraft:textures/blocks/stone.png",
+    "depth": 8,
+    "hardnessMultiplier": 9.0,
+    "recipeEnabled": true
+  },
+  {
+    "baseRegistryName": "minecraft:emerald_block",
+    "compressedPathRegistryName": "compressed_emerald_block",
+    "meta": 0,
+    "texturePath": "minecraft:textures/blocks/emerald_block.png",
+    "depth": 8,
+    "hardnessMultiplier": 9.0,
+    "recipeEnabled": true
+  },
+  {
+    "baseRegistryName": "minecraft:obsidian",
+    "compressedPathRegistryName": "compressed_obsidian",
+    "meta": 0,
+    "texturePath": "minecraft:textures/blocks/obsidian.png",
+    "depth": 8,
+    "hardnessMultiplier": 9.0,
+    "recipeEnabled": true
+  }
+]
