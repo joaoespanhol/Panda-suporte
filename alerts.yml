@@ -1,0 +1,773 @@
+# This is an /advanced/ feature of DiscordSRV that allows you to send messages to Discord when a game event happens
+# or when a command is run. You will need a working knowledge of how Bukkit events work and their properties.
+# If you aren't sure about what you're doing here, maybe ask a developer or join our support server @ discordsrv.com/discord
+#
+# Refer to the Bukkit API javadoc to find events & properties to use:
+#  https://hub.spigotmc.org/javadocs/bukkit
+# Helpful resources for learning how to use SpEL:
+#  https://docs.spring.io/spring/docs/4.2.x/spring-framework-reference/html/expressions.html
+#  https://dzone.com/articles/learn-spring-expression-language-with-examples
+#
+# You can use the following placeholders:
+#  {tps} - server TPS
+#  {time} - formatted time
+#  {date} - formatted date
+#  {name} - if alert is for a player event, the name of the player
+#  {ping} - if alert is for a player event, the ping of the player
+#  {username} - if alert is for a player event, the username of the player
+#  {displayname} - if alert is for a player event, the display name of the player
+#  {usernamenoescapes} - if alert is for a player event, the username of the player without escaping discord format (for use in inline code & code block markdown)
+#  {displaynamenoescapes} - if alert is for a player event, the display name of the player without escaping discord format (for use in inline code & code block markdown)
+#  {world} - if alert is for a player event, the world the player is in
+#  {embedavatarurl} - if alert is for a player event, the avatar url for the player's head, otherwise, the bot's avatar url
+#  {botavatarurl} - the bot's avatar url
+#  {botname} - the bot's name
+#  %placeholder% - any PlaceholderAPI placeholders, can only use player ones when alert is for a player event
+#
+# You can also use SpEL expressions with ${expression...}, such as...
+#  - Getting a player's IP: ${#player.address.address.hostAddress}
+#  - Getting a player's game mode: ${#player.gameMode.name()}
+#  - Getting a player's linked Discord account ID: ${#discordsrv.accountLinkManager.getDiscordId(#player.uniqueId)}
+#  - Getting the online player count: ${#server.onlinePlayers.size()}
+#  - Getting the status of DiscordSRV's connection to Discord: ${#jda.status.name()}
+#  - Checking if a player is in a specific world: ${#player.world.name == 'world_the_end'}
+#  - Checking if it's day in the world that the player is in: ${#player.world.time > 0 && #player.world.time < 13000}
+#  You can use the following expression placeholders, as seen above:
+#   #plugins.<plugin> - the specified plugin instance, null if doesn't exist
+#   #event - the event that's triggering the alert if this alert is an event alert
+#   #server - the Bukkit API server instance, equivalent to Bukkit#getServer
+#   #discordsrv - the DiscordSRV plugin instance
+#   #player - the player that the event is for, if this is a player event or command
+#   #sender - the command sender, if this is a command alert
+#   #command - the full command, with no leading slash, if this is a command alert
+#   #args - the command arguments, if this is a command alert
+#   #allArgs - the command arguments as one string, if this is a command alert
+#   #channel - the destination channel for this alert
+#   #jda - DiscordSRV's JDA instance that it uses to communicate with Discord
+#
+# Syntax/defaults:
+#  - Trigger: <event name or /command>
+#    Async: true # optional, defaults to true, you should almost never have to change this
+#    Conditions:
+#      - property == < > <= >= value etc
+#    Channel: <discordsrv channel name>
+#    IgnoreCancelled: true # only for event alerts
+#    Content: ""
+#    Webhook:
+#      Enabled: false
+#      AvatarUrl: "{botavatarurl}"
+#      Name: "{botname}"
+#    Embed:
+#      Enabled: true
+#      Color: "#00ff00" # accepts a hex color code (eg. "#ffffff") or a rgb integer (eg. 0)
+#      Author:
+#        ImageUrl: "{embedavatarurl}"
+#        Name: "{username} did... something."
+#        Url: ""
+#      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+#      Title:
+#        Text: ""
+#        Url: ""
+#      Description: ""
+#      Fields: [] # format is "title;value;inline" (eg. "Who joined?;%displayname%;true") or "blank" to add a blank field
+#      ImageUrl: ""
+#      Footer:
+#        Text: ""
+#        IconUrl: ""
+#      Timestamp: false # set to true to use the time the message was sent or use a epoch timestamp for a specific time (https://www.epochconverter.com/)
+#
+Alerts: 
+################[Fish Caught]################  
+  - Trigger: PlayerFishEvent
+    Channel: alerts
+    Conditions:
+      - state.name() == 'CAUGHT_FISH'
+    Embed:
+      Color: "#00ff00"
+      Author:
+        ImageUrl: "{embedavatarurl}"
+        Name: "{name}"
+        Url: "https://cloverkingdom.org"
+      Description: "{time}"
+      ThumbnailUrl: "https://minecraftitemids.com/item/32/${caught.itemStack.type.name()}.png"
+      Title:
+        Text: "While Fishing"
+      Description: "Caught a ${caught.itemStack.type.name()}" 
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+        IconUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+################[Mining Ore]################  
+  - Trigger: BlockBreakEvent
+    Channel: blocks-broken
+    Conditions:
+      - block.getType().name().contains("_ORE")
+    Embed:
+      Color: "#00ff00"
+      Author:
+        ImageUrl: "{embedavatarurl}"
+        Name: "Clover Kingdom"
+        Url: "https://cloverkingdom.org"
+      Description: "{time}"
+      ThumbnailUrl: "https://minecraftitemids.com/item/32/${block.type.name()}.png"
+      Title:
+        Text: "{name} mined ${block.type.name()}"
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+        IconUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+
+################[AFK]################  
+  - Trigger: CMIAfkEnterEvent
+    Channel: afk-bed
+    Embed:
+      Color: "#609600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Clover Kingdom"
+        Url: "https://cloverkingdom.org"
+      Description: "{time}"
+      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+      Title:
+        Text: '${player.displayName + " is now AFK"}'
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+  - Trigger: CMIAfkLeaveEvent
+    Channel: afk-bed
+    Embed:
+      Color: "#963600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Clover Kingdom"
+        Url: "https://cloverkingdom.org"
+      Description: "{time}"
+      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+      Title:
+        Text: '${player.displayName + " is no longer AFK"}'
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+################[Anti-Cheat]################  
+  - Trigger: PlayerViolationEvent
+    Channel: anticheat-logs
+    Embed:
+      Color: "#963600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Clover Kingdom"
+        Url: "https://cloverkingdom.org"
+      Description: "{time}"
+      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+      Title:
+        Text: "{username} failed ${hackType.name().toLowerCase()} check | ${message} | vl:${violation} ping:${player.ping} tps:{tps}"
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+################[Spy Commands / Signs]################  
+  - Trigger: [/msg, /w, /m, /pm, /emsg, /epm, /tell, /etell, /whisper, /ewhisper, /r]
+    Channel: socialspy
+    Embed:
+      Color: "#963600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Clover Kingdom"
+        Url: "https://cloverkingdom.org"
+      Description: "{time}"
+      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+      Title:
+        Text: "[{username}> ${#allArgs}]"
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023" 
+  - Trigger: /cmi
+    Channel: socialspy
+    Conditions:
+      - '#args.get(0) == "msg"'
+    Embed:
+      Color: "#963600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Clover Kingdom"
+        Url: "https://cloverkingdom.org"
+      Description: "{time}"
+      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+      Title:
+        Text: "[{username}> ${#allArgs}]"
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+  - Trigger: /cmi
+    Channel: socialspy
+    Conditions:
+      - '#args.get(0) == "r"'
+    Embed:
+      Color: "#963600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Clover Kingdom"
+        Url: "https://cloverkingdom.org"
+      Description: "{time}"
+      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+      Title:
+        Text: "[{username}> ${#allArgs}]"
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"         
+  - Trigger: SignChangeEvent
+    Channel: socialspy
+    Conditions:
+      - '(getLine(0) + getLine(1) + getLine(2) + getLine(3)).trim().length() != 0'
+    Embed:
+      Color: "#869600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Placed a sign"
+        Url: "https://cloverkingdom.org"
+      ThumbnailUrl: "https://minecraftitemids.com/item/32/sign.png"
+      Title:
+        Text: "{username}"
+      Description: "**Coord:** `[${#event.getBlock().getLocation().getBlockX() + \" \" + #event.getBlock().getLocation().getBlockY() + \" \" + #event.getBlock().getLocation().getBlockZ() + \"] \" + #event.getBlock().getWorld().getName()}`
+      \n```${#event.getLine(0)}
+      \n${#event.getLine(1)}
+      \n${#event.getLine(2)}
+      \n${#event.getLine(3)}
+      \n```"     
+      Fields:
+        - "TIME;{time};true"
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+        IconUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+################[Achivements]################  
+  - Trigger: PlayerAdvancementDoneEvent
+    Channel: achievements
+    Embed:
+      Color: "#3b9600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "{username} Advancement"
+        Url: "https://cloverkingdom.org"
+      ThumbnailUrl: "https://media.discordapp.net/attachments/1003477212403617854/1054154390866497566/Thumbnail.png"
+      Title:
+        Text: "${new net.md_5.bungee.api.chat.TranslatableComponent(#event.getAdvancement().getDisplay().title().key()).toPlainText()}"
+      Description: "${new net.md_5.bungee.api.chat.TranslatableComponent(#event.getAdvancement().getDisplay().description().key()).toPlainText()}"
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023 | {time}"
+        IconUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+################[Gamemode]################  
+  - Trigger: PlayerGameModeChangeEvent
+    Channel: misc
+    Conditions:
+      - PlayerGameModeChangeEvent.Cause
+    Embed:
+      Color: "#3b9600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Gamemode Changed"
+        Url: "https://cloverkingdom.org"
+      Description: "{time}"
+      ThumbnailUrl: "https://i.gyazo.com/fe4e15ef0cc0af0ebe231bcf946becf6.png"
+      Title:
+        Text: "{username}"
+      Description: "Entered gamemode ${getNewGameMode()}"
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+        IconUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+################[Nick Names]################  
+  - Trigger: CMIPlayerNickNameChangeEvent
+    Channel: alerts
+    Embed:
+      Color: "#869600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Clover Kingdom"
+        Url: "https://cloverkingdom.org"
+      Description: "{time}"
+      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+      Title:
+        Text: "%cmi_user_name% is now %cmi_user_nickname%" 
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+################[Sleeping]################                 
+  - Trigger: PlayerBedEnterEvent
+    Channel: afk-bed
+    Conditions:
+      - PlayerBedEnterEvent.BedEnterResult
+    Embed:
+      Color: "#869600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Clover Kingdom"
+        Url: "https://cloverkingdom.org"
+      Description: "{time}"
+      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+      Title:
+        Text: '${player.displayName + " is now in bed"}'
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+################[Flight]################  
+  - Trigger: PlayerToggleFlightEvent
+    Channel: flight
+    Embed:
+      Color: "#869600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Clover Kingdom"
+        Url: "https://cloverkingdom.org"
+      Description: "{time}"
+      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+      Title:
+        Text: '${player.displayName} + Flight is ${isFlying()}'
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+################[Block Integer]################  
+  - Trigger: BlockIgniteEvent
+    Channel: alerts
+    Conditions:
+      - '#event.getCause().toString() == "FLINT_AND_STEEL"'
+    Embed:
+      Color: "#869600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Clover Kingdom"
+        Url: "https://cloverkingdom.org"
+      Description: "{time}"
+      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+      Title:
+        Text: "{name} used a lighter to set something on fire at ${#event.getBlock().getLocation().getBlockX()} ${#event.getBlock().getLocation().getBlockY()} ${#event.getBlock().getLocation().getBlockZ()}"
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+  - Trigger: BlockIgniteEvent
+    Channel: alerts
+    Conditions:
+      - '#event.getCause().toString() == "ENDER_CRYSTAL"'
+    Embed:
+      Color: "#869600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Clover Kingdom"
+        Url: "https://cloverkingdom.org"
+      Description: "{time}"
+      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+      Title:
+        Text: "{name} Broke Enter Crystal at ${#event.getBlock().getLocation().getBlockX()} ${#event.getBlock().getLocation().getBlockY()} ${#event.getBlock().getLocation().getBlockZ()}"
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+  #-------------------[Flagged Words]-------------------#
+  - Trigger: AsyncPlayerChatEvent
+    Channel: flagged-words
+    Conditions:
+      - '#event.getMessage().toLowerCase().matches(".*(xray|hack|client|hax|aimbot|evade|evasion|evading|sex|cheat|fuck|shit|rape|nigger|bitch|cunt).*")'
+    Embed:
+      Color: "#869600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Clover Kingdom"
+        Url: "https://cloverkingdom.org"
+      Description: "{time}"
+      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+      Title:
+        Text: "`[${#event.getPlayer().getLocation().getBlockX() + \" \" + #event.getPlayer().getLocation().getBlockY() + \" \" + #event.getPlayer().getLocation().getBlockZ()}]` **{username}**: ${#event.getMessage()}"
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+        
+  - Trigger: PlayerCommandPreprocessEvent
+    Channel: flagged-words
+    Conditions:
+      - '#event.getMessage().toLowerCase().matches(".*(xray|hack|client|hax|aimbot|evade|evasion|evading|sex|cheat|fuck|shit|rape|nigger|bitch|cunt).*")'
+    Embed:
+      Color: "#869600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Clover Kingdom"
+        Url: "https://cloverkingdom.org"
+      Description: "{time}"
+      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+      Title:
+        Text: "`[${#event.getPlayer().getLocation().getBlockX() + \" \" + #event.getPlayer().getLocation().getBlockY() + \" \" + #event.getPlayer().getLocation().getBlockZ()}]` **{username}**: ${#event.getMessage()}"
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+################[Join / Leave Event]################     
+  - Trigger: PlayerJoinEvent
+    Channel: server-chat
+    Embed:
+      Color: "#3b9600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Clover Kingdom"
+        Url: "https://cloverkingdom.org"
+      Description: "{time}"
+      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+      Title:
+        Text: "{name} Join the Clover Kingdom"
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+  - Trigger: PlayerQuitEvent
+    Channel: server-chat
+    Embed:
+      Color: "#963600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Clover Kingdom"
+        Url: "https://cloverkingdom.org"
+      Description: "{time}"
+      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+      Title:
+        Text: "{name} Left the Clover Kingdom"
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+#PLAYER KILL PLAYER#
+  - Trigger: PlayerDeathEvent
+    Channel: server-chat
+    Conditions:
+      - '#event.getEntity().getKiller() != null'
+    Embed:
+      Color: "#963600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Clover Kingdom"
+        Url: "https://cloverkingdom.org"
+      Description: |-
+        **Player**     `${#event.getEntity().getName()}`
+        **Killer:**    `${#event.getEntity().getKiller().getName()}`
+        **Death Msg:** `${#event.getDeathMessage()}`
+        **Location:**  `${#event.getEntity().getLocation().getBlockX()} ${#event.getEntity().getLocation().getBlockY()} ${#event.getEntity().getLocation().getBlockZ()}`
+      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+      Title:
+        Text: "${#event.getEntity().getKiller().getName()} killed ${#event.getEntity().getName()}"
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"   
+#mcmmo event
+  - Trigger: McMMOPlayerLevelUpEvent
+    Channel: mcmmo
+    Conditions: 
+      - "(T(java.lang.Integer).parseInt(Class.forName('me.clip.placeholderapi.PlaceholderAPI').setPlaceholders(#player, '%mcmmo_power_level%'))) % 1 == 10"
+    Webhook:
+      Enable: false
+      AvatarUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+      Name: "Clover Kingdom"
+    Embed:
+      Color: "#869600"
+      ThumbnailUrl: "{embedavatarurl}"
+      Title:
+        Text: "{displayname} made it to power-level `%mcmmo_power_level%`"
+        Url: "https://cloverkingdom.org"
+      Description: "{time}"
+      Fields:
+        - ":boot: acrobatics:;`level: %mcmmo_level_acrobatics%`\n`rank: %mcmmo_rank_acrobatics%`;true"
+        - ":test_tube: alchemy:;`level: %mcmmo_level_alchemy%`\n`rank: %mcmmo_rank_alchemy%`;true"
+        - ":archery: archery:;`level: %mcmmo_level_archery%`\n`rank: %mcmmo_rank_archery%`;true"
+        - ":axe: axes:;`level: %mcmmo_level_axes%`\n`rank: %mcmmo_rank_axes%`;true"
+        - ":spoon: excavation:;`level: %mcmmo_level_excavation%`\n`rank: %mcmmo_rank_excavation%`;true"
+        - ":fish: fishing:;`level: %mcmmo_level_fishing%`\n`rank: %mcmmo_rank_fishing%`;true"
+        - ":herb: herbalism:;`level: %mcmmo_level_herbalism%`\n`rank: %mcmmo_rank_herbalism%`;true"
+        - ":pick: mining:;`level: %mcmmo_level_mining%`\n`rank: %mcmmo_rank_mining%`;true"
+        - ":tools: repair:;`level: %mcmmo_level_repair%`\n`rank: %mcmmo_rank_repair%`;true"
+        - ":crossed_swords: swords:;`level: %mcmmo_level_swords%`\n`rank: %mcmmo_rank_swords%`;true"
+        - ":fox: taming:;`level: %mcmmo_level_taming%`\n`rank: %mcmmo_rank_taming%`;true"
+        - ":mechanical_arm: unarmed:;`level: %mcmmo_level_unarmed%`\n`rank: %mcmmo_rank_unarmed%`;true"
+        - ":axe: woodcutting:;`level: %mcmmo_level_woodcutting%`\n`rank: %mcmmo_rank_woodcutting%`;true"
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+# Vote Alert
+  - Trigger: VotifierEvent
+    Channel: voting
+    Embed:
+      Enabled: true
+      Color: "#ff0000"
+      Author:
+        ImageUrl: "{embedavatarurl}"
+        Name: "Clover Kingdom"
+        Url: ""
+      ThumbnailUrl: ""
+      Title:
+        Text: "THANKS FOR VOTING"
+        Url: ""
+      Description: ":partying_face: **VOTER »** ${#event.getVote().getUsername()} \n :white_small_square: Just voted for the server \n :coin: **REWARDS »** \n :white_small_square: 1 Voter Key \n :grey_question: **REDEEM »** \n :white_small_square: Do /warp crate to use your key, enjoy your rewards!\n"
+      ImageUrl: "https://topg.org/image/501222/449822.gif"
+      Footer:
+        Text: "play.cloverkingdom.org"
+        IconUrl: "https://cdn.discordapp.com/emojis/885046080402780180.gif?size=44"
+##################################################
+  - Trigger: AccountUnLinkedEvent
+    Channel: 'account-link'
+    Embed:
+      Color: "#963600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Clover Kingdom"
+        Url: "https://cloverkingdom.org"
+      Description: ""
+      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+      Description: |-
+        **Account**      `Now UnLinked`
+        **Minecraft:**   `${#event.player.name}`
+        **UUID:**        `${#event.player.uniqueId}`
+      Title:
+        Text: "**__UNLINKED__**"
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+      Timestamp: true        
+  - Trigger: AccountLinkedEvent
+    Channel: account-link
+    Embed:
+      Color: "#963600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Clover Kingdom"
+        Url: "https://cloverkingdom.org"
+      Description: |-
+        **Account**      `Now Linked`
+        **Minecraft:**   `${#event.player.name}`
+        **UUID:**        `${#event.player.uniqueId}`
+        **Discord:**     `${#event.user.name}#${#event.user.discriminator}` `(${#event.user.id})`
+      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+      Title:
+        Text: "**__LINKED__**"
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+      Timestamp: true
+###################################################
+  - Trigger: PlayerCommandPreprocessEvent
+    Channel: command-logs
+    Embed:
+      Color: "#963600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Clover Kingdom"
+        Url: "https://cloverkingdom.org"
+      Description: "{username} issued command: /${#command}"
+      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+      Title:
+        Text: ""
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+      Timestamp: true
+###################################################      
+  - Trigger: LuckPermsEvent
+    Channel: luckperms
+    Embed:
+      Color: "#963600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Clover Kingdom"
+        Url: "https://cloverkingdom.org"
+      Description: "Rank Change"
+      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+      Title:
+        Text: "LuckPerm Changes"
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+      Timestamp: true
+###################################################  
+  - Trigger: PlayerCommandPreprocessEvent
+    Channel: server-chat
+    Conditions: 
+      - '#player.hasPermission("cmi.command.maintenance")'
+      - "(#command.split(\"\\s+|$\")[0].equals(\"cmi\"))"
+      - "(#command.split(\"\\s+|$\")[1].equals(\"maintenance\"))"
+      - "(#command.split(\"\\s+|$\")[2].equals(\"true\"))"
+    Embed:
+      Color: "#963600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Clover Kingdom"
+        Url: "https://cloverkingdom.org"
+      Description: "We are oiling up the gears so the server runs a bit smoother, players cannot join during this time."
+      ThumbnailUrl: "https://cdn.discordapp.com/attachments/895784266976329739/979217380431507516/road-works.png"
+      Title:
+        Text: "The server is currently down for maintenance"
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+      Timestamp: true
+  - Trigger: PlayerCommandPreprocessEvent
+    Channel: server-chat
+    Conditions: 
+      - '#player.hasPermission("cmi.command.maintenance")'
+      - "(#command.split(\"\\s+|$\")[0].equals(\"cmi\"))"
+      - "(#command.split(\"\\s+|$\")[1].equals(\"maintenance\"))"
+      - "(#command.split(\"\\s+|$\")[2].equals(\"false\"))"
+    Embed:
+      Color: "#963600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Clover Kingdom"
+        Url: "https://cloverkingdom.org"
+      Description: "Maintenance has completed, players can join server again. Are you the first?"
+      ThumbnailUrl: "https://cdn.discordapp.com/attachments/895784266976329739/979217380431507516/road-works.png"
+      Title:
+        Text: "We have opened the server again!"
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+      Timestamp: true
+################################################### 
+  - Trigger: PlayerCommandPreprocessEvent 
+    Channel: server-chat
+    Conditions:
+      - "(#command.split(\"\\s+|$\")[0].equals(\"cmi\"))"
+      - "(#command.split(\"\\s+|$\")[1].equals(\"broadcast\"))"
+    Embed:
+      Color: "#963600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Clover Kingdom"
+        Url: "https://cloverkingdom.org"
+      Description: "`{username} posted:`\n```md\n# ${#allArgs}\n```"
+      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+      Title:
+        Text: "**BROADCAST**"
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+      Timestamp: true
+###################################################
+  - Trigger: [/xprate]
+    Channel: events
+    Conditions:
+      - "!(#command.split(\"\\s+|$\")[1].equals(\"reset\"))"
+      - "!(#command.split(\"\\s+|$\")[1].equals(\"clear\"))"
+      - "(#command.split(\"\\s+|$\")[2].equals(\"true\"))"
+    Embed:
+      Color: "#963600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Clover Kingdom"
+        Url: "https://cloverkingdom.org"
+      Description: "```md\n# Server Boosters have been turned on!\n- mcMMO XP Rate is set to: ${#args.get(0)}x\n```\nCommands: `/mctop, /mcrank, /mctop`"
+      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+      Title:
+        Text: "**MCMMO BOOSTER EVENT**"
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+      Timestamp: true
+  - Trigger: [/xprate]
+    Channel: events
+    Conditions:
+      - "(#command.split(\"\\s+|$\")[1].equals(\"reset\"))"
+    Embed:
+      Color: "#963600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Clover Kingdom"
+        Url: "https://cloverkingdom.org"
+      Description: "```md\n# Server Boosters have ended!\n- mcMMO XP Rate has been reset.\n```"
+      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+      Title:
+        Text: "**MCMMO BOOSTER EVENT**"
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+      Timestamp: true
+  - Trigger: [/xprate]
+    Channel: events
+    Conditions:
+      - "(#command.split(\"\\s+|$\")[1].equals(\"clear\"))"
+    Embed:
+      Color: "#963600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Clover Kingdom"
+        Url: "https://cloverkingdom.org"
+      Description: "```md\n# Server Boosters have ended!\n- mcMMO XP Rate has been reset.\n```"
+      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+      Title:
+        Text: "**MCMMO BOOSTER EVENT**"
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+      Timestamp: true
+###################################################
+  - Trigger: /jobs
+    Channel: events
+    Conditions:
+      - "(#command.split(\"\\s+|$\")[1].equals(\"expboost\"))"
+    Embed:
+      Color: "#963600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Clover Kingdom"
+        Url: "https://cloverkingdom.org"
+      Description: "**__Bonus Rate:__** ${#args.get(3)}x\n **__End Time:__** ${#args.get(2)}"
+      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+      Title:
+        Text: "**JOBS XP BOOSTER EVENT**"
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+      Timestamp: true
+  - Trigger: /jobs
+    Channel: events
+    Conditions:
+      - "(#command.split(\"\\s+|$\")[1].equals(\"moneyboost\"))"
+    Embed:
+      Color: "#963600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Clover Kingdom"
+        Url: "https://cloverkingdom.org"
+      Description: "**__Bonus Rate:__** ${#args.get(3)}x\n **__End Time:__** ${#args.get(2)}"
+      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+      Title:
+        Text: "**JOBS MONEY BOOSTER EVENT**"
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+      Timestamp: true
+  - Trigger: /jobs
+    Channel: events
+    Conditions:
+      - "(#command.split(\"\\s+|$\")[1].equals(\"pointboost\"))"
+    Embed:
+      Color: "#963600"
+      Author:
+        ImageUrl: "https://crafatar.com/avatars/${player.getUniqueId()}?overlay"
+        Name: "Clover Kingdom"
+        Url: "https://cloverkingdom.org"
+      Description: "**__Bonus Rate:__** ${#args.get(3)}x\n **__End Time:__** ${#args.get(2)}"
+      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+      Title:
+        Text: "**JOBS POINT BOOSTER EVENT**"
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+      Timestamp: true
+###################################################
+  - Trigger: GlobalStartEnvoyEvent
+    Channel: envoys
+    Embed:
+      Color: "#963600"
+      Author:
+        ImageUrl: "https://www.spigotmc.org/data/resource_icons/58/58795.jpg"
+        Name: "**Clover Kingdom Envoy**"
+        Url: "https://cloverkingdom.org"
+      Description: "Envoy started in **${world}**!"
+      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+      Title:
+        Text: "**__Envoy Started__**"
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+      Timestamp: true
+  - Trigger: GlobalBroadcastTimeEvent
+    Channel: envoys
+    Embed:
+      Color: "#963600"
+      Author:
+        ImageUrl: "https://www.spigotmc.org/data/resource_icons/58/58795.jpg"
+        Name: "**Clover Kingdom Envoy**"
+        Url: "https://cloverkingdom.org"
+      Description: 'Envoy will start in **${time + (time < 2 ? " minute" : " minutes")}** in **${world}**!'
+      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+      Title:
+        Text: "**__Envoy Timer__**"
+      Footer:
+        Text: "Clover Kingdom - Copyright 2019-2023"
+      Timestamp: true
+###################################################
+#  - Trigger: AuctionStartEvent
+#    Channel: auctions
+#    Embed:
+#      Color: "#963600"
+#      Author:
+#        ImageUrl: "https://www.spigotmc.org/data/resource_icons/58/58795.jpg"
+#        Name: "**Auction Started**"
+#        Url: "https://cloverkingdom.org"
+#      Description: "#event.player.name}"
+#      ThumbnailUrl: "https://s3.amazonaws.com/files.enjin.com/1813800/site_logo/ckingdom_logo.png"
+#      Title:
+#        Text: "**__Current Auction__**"
+#      Footer:
+#        Text: "Clover Kingdom - Copyright 2019-2023"
+#      Timestamp: true
+  - Trigger: AuctionStartEvent
+    Channel: auctions
+    Embed:
+      Color: "#4DDF85"
+      Author:
+        Name: '${#event.player.name} Started Auction'
+        ImageUrl: "https://crafatar.com/avatars/${auction.getAuctioneer().getUniqueId()}?overlay"
